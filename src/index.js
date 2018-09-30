@@ -6,22 +6,25 @@ const commands = {
   help: require(`./help`),
 };
 
+const {help} = commands;
+help.execute = help.execute.bind(help, commands);
+
 const exec = (params) => {
-  let countErrors = 0;
+  let isError = false;
 
   params.forEach((param) => {
     const formatParam = param.slice(2);
 
     if (commands.hasOwnProperty(formatParam)) {
-      commands[formatParam].execute(commands);
+      commands[formatParam].execute();
     } else {
       console.error(`Неизвестная команда ${param}`);
-      countErrors++;
+      isError = true;
     }
   });
 
-  if (countErrors) {
-    commands.help.execute(commands, `error`);
+  if (isError) {
+    help.execute(`error`);
   }
 };
 

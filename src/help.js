@@ -1,9 +1,12 @@
+const colors = require(`colors/safe`);
+
 const getCommandsList = (list) => {
   let result = [``];
 
   for (let item in list) {
     if (list.hasOwnProperty(item)) {
-      result.push(`--${list[item].name} — ${list[item].description}`);
+      result.push(` --${colors.gray(list[item].name)} — ${colors.green(list[item].description)}`
+      );
     }
   }
 
