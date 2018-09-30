@@ -1,15 +1,9 @@
-const author = require(`./author`);
-const license = require(`./license`);
-const description = require(`./description`);
-const version = require(`./version`);
-const help = require(`./help`);
-
 const commands = {
-  author,
-  license,
-  description,
-  version,
-  help,
+  author: require(`./author`),
+  license: require(`./license`),
+  description: require(`./description`),
+  version: require(`./version`),
+  help: require(`./help`),
 };
 
 const exec = (params) => {

@@ -1,20 +1,19 @@
-const getList = (list) => {
-  let commandsList = [];
+const getCommandsList = (list) => {
+  let result = [``];
 
   for (let item in list) {
     if (list.hasOwnProperty(item)) {
-      commandsList.push(`\n--${list[item].name} — ${list[item].description}`);
+      result.push(`--${list[item].name} — ${list[item].description}`);
     }
   }
 
-  return commandsList.join(``);
+  return result.join(`\n`);
 };
 
 module.exports = {
   name: `help`,
   description: `Печатает доступные команды`,
   execute(commands, type = `log`) {
-
-    console[type](`Доступные команды: ${getList(commands)}`);
+    console[type](`Доступные команды: ${getCommandsList(commands)}`);
   }
 };
