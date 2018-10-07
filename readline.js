@@ -1,10 +1,6 @@
 const readline = require(`readline`);
 const {generateData} = require(`./generate`);
 const fs = require(`fs`);
-const util = require(`util`);
-const stat = util.promisify(fs.stat);
-const writeFile = util.promisify(fs.writeFile);
-const unlink = util.promisify(fs.unlink);
 
 class Readline {
   constructor(params) {
@@ -31,7 +27,7 @@ class Readline {
       answer = answer.toLowerCase();
       switch (answer) {
         case `n`:
-          this.rl.emit(`close`);
+          this.rl.close();
           break;
 
         case `y`:
@@ -59,24 +55,24 @@ class Readline {
   }
 
   getPath() {
-    this.rl.question(`Where to put this shit? `, async (path) => {
-      const isCreated = await Readline.checkPath(path);
+    this.rl.question(`Where to put this shit? `, (path) => {
+      const fileIsFound = Readline.findFile(path);
 
-      if (isCreated) {
+      if (fileIsFound) {
         this.replaceFile(path);
       } else {
-        await Readline.writeFile(path, this.data);
+        Readline.writeFile(path, this.data);
         this.rl.close();
       }
     });
   }
 
   replaceFile(path) {
-    this.rl.question(`File already created, replace it? (Y/N) `, async (answer) => {
+    this.rl.question(`File already created, replace it? (Y/N) `, (answer) => {
       answer = answer.toLowerCase();
       switch (answer) {
         case `y`:
-          await Readline.writeFile(path);
+          Readline.writeFile(path);
           this.rl.close();
           break;
 
@@ -90,29 +86,25 @@ class Readline {
     });
   }
 
-  static async checkPath(path) {
-    console.log(path);
+  static findFile(path) {
     try {
-      await stat(path);
-      return true;
+      fs.statSync(path);
     } catch (err) {
       if (err.code === `ENOENT`) {
         return false;
-      } else {
-        console.error(err);
       }
     }
 
-    return false;
+    return true;
   }
 
-  static async writeFile(path, data) {
-    await writeFile(path, JSON.stringify(data));
+  static writeFile(path, data) {
+    fs.writeFileSync(path, JSON.stringify(data));
     console.log(`File was created!`);
   }
 
-  static async unlink(path) {
-    await unlink(path);
+  static unlink(path) {
+    fs.unlinkSync(path);
     console.log(`File was deleted!`);
   }
 }

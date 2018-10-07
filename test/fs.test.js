@@ -1,4 +1,4 @@
-const {checkPath, writeFile, unlink} = require(`../readline`).Readline;
+const {findFile, writeFile, unlink} = require(`../readline`).Readline;
 const assert = require(`assert`);
 const path = require(`path`);
 
@@ -7,21 +7,21 @@ const testFile = path.resolve(__dirname, `./_test.js`);
 
 describe(`File system`, () => {
   describe(`Stat file`, () => {
-    it(`Check availability index.js`, async () => {
-      assert.equal(await checkPath(indexFile), true);
+    it(`Check availability index.js`, () => {
+      assert.equal(findFile(indexFile), true);
     });
   });
   describe(`Write file`, () => {
-    it(`File _test.js is not created`, async () => {
-      assert.equal(await checkPath(testFile), false);
+    it(`File _test.js is not created`, () => {
+      assert.equal(findFile(testFile), false);
     });
-    it(`File _test.js created`, async () => {
-      await writeFile(testFile);
-      assert.equal(await checkPath(testFile), true);
+    it(`File _test.js created`, () => {
+      writeFile(testFile);
+      assert.equal(findFile(testFile), true);
     });
-    it(`File _test.js deleted`, async () => {
-      await unlink(testFile);
-      assert.equal(await checkPath(testFile), false);
+    it(`File _test.js deleted`, () => {
+      unlink(testFile);
+      assert.equal(findFile(testFile), false);
     });
   });
 });
