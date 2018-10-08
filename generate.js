@@ -23,8 +23,17 @@ const generateEntity = () => ({
   date: getRandomDate(Date.now(), 7),
 });
 
+const generateData = (count) => {
+  const arr = new Array(count);
+  for (let i = 0; i < count; i++) {
+    arr[i] = generateEntity();
+  }
+  return arr;
+};
+
 module.exports = {
-  data: generateEntity(),
+  generateEntity,
+  generateData,
   effects,
   convertDaysToMilliseconds
 };

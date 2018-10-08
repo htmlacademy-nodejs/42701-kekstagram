@@ -1,5 +1,7 @@
-const {data, effects, convertDaysToMilliseconds} = require(`../data`);
+const {generateEntity, effects, convertDaysToMilliseconds} = require(`../generate`);
 const assert = require(`assert`);
+
+const data = generateEntity();
 
 describe(`Data`, () => {
   describe(`Check data.url`, () => {
