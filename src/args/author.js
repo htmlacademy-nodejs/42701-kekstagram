@@ -1,4 +1,4 @@
-const {author} = require(`../package`);
+const {author} = require(`../../package`);
 
 module.exports = {
   name: `author`,

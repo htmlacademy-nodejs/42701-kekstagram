@@ -1,5 +1,5 @@
-const {exec} = require(`./src`);
-const {Readline} = require(`./readline`);
+const {exec} = require(`./src/args/index`);
+const {Readline} = require(`./src/readline`);
 
 const [,, ...params] = process.argv;
 

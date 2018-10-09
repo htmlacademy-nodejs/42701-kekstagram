@@ -4,6 +4,7 @@ const commands = {
   description: require(`./description`),
   version: require(`./version`),
   help: require(`./help`),
+  server: require(`./server`),
 };
 
 const {help} = commands;
@@ -14,9 +15,10 @@ const exec = (params) => {
 
   params.forEach((param) => {
     const formatParam = param.slice(2);
+    const [paramName, paramValue] = formatParam.split(`=`);
 
-    if (commands.hasOwnProperty(formatParam)) {
-      commands[formatParam].execute();
+    if (commands.hasOwnProperty(paramName)) {
+      commands[paramName].execute(paramValue);
     } else {
       console.error(`Неизвестная команда ${param}`);
       isError = true;

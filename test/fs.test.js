@@ -1,4 +1,4 @@
-const {findFile, writeFile, unlink} = require(`../readline`).Readline;
+const {findFile, writeFile, unlink} = require(`../src/readline`).Readline;
 const assert = require(`assert`);
 const path = require(`path`);
 

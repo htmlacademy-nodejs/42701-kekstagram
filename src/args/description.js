@@ -1,4 +1,4 @@
-const {description} = require(`../package`);
+const {description} = require(`../../package`);
 const colors = require(`colors/safe`);
 
 module.exports = {
