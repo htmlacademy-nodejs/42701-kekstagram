@@ -1,4 +1,4 @@
-const {version} = require(`../package`);
+const {version} = require(`../../package`);
 const colors = require(`colors/safe`);
 
 const colorsList = [

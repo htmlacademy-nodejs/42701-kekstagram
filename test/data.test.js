@@ -1,4 +1,4 @@
-const {generateEntity, effects, convertDaysToMilliseconds} = require(`../generate`);
+const {generateEntity, effects, convertDaysToMilliseconds} = require(`../src/generate`);
 const assert = require(`assert`);
 
 const data = generateEntity();

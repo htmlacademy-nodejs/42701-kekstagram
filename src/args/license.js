@@ -1,4 +1,4 @@
-const {license} = require(`../package`);
+const {license} = require(`../../package`);
 
 module.exports = {
   name: `license`,
