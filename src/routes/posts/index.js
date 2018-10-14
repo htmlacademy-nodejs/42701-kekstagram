@@ -3,6 +3,8 @@ const express = require(`express`);
 const postsRouter = express.Router();
 const {generateData} = require(`../../generate`);
 const multer = require(`multer`);
+const validate = require(`./validate`);
+const ValidateError = require(`../../error/validate`);
 
 const jsonParse = express.json();
 const upload = multer();
@@ -32,14 +34,24 @@ postsRouter.get(`/:date`, (req, res) => {
   res.send(post);
 });
 
-postsRouter.post(``, jsonParse, upload.single(`url`), (req, res) => {
+postsRouter.post(``, jsonParse, upload.single(`filename`), (req, res) => {
   const {body, file} = req;
 
   if (file) {
-    body.url = file.originalname;
+    const {mimetype, originalname} = file;
+    body.filename = {
+      mimetype,
+      originalname
+    };
   }
 
-  res.send(body);
+  res.send(validate(body));
+});
+
+postsRouter.use((err, req, res, _next) => {
+  if (err instanceof ValidateError) {
+    res.status(err.code).json(err.errors);
+  }
 });
 
 module.exports = postsRouter;
