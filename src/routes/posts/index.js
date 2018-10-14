@@ -2,6 +2,10 @@ const express = require(`express`);
 // eslint-disable-next-line new-cap
 const postsRouter = express.Router();
 const {generateData} = require(`../../generate`);
+const multer = require(`multer`);
+
+const jsonParse = express.json();
+const upload = multer();
 
 const posts = generateData(17);
 const skipDefault = 0;
@@ -28,5 +32,14 @@ postsRouter.get(`/:date`, (req, res) => {
   res.send(post);
 });
 
+postsRouter.post(``, jsonParse, upload.single(`url`), (req, res) => {
+  const {body, file} = req;
+
+  if (file) {
+    body.url = file.originalname;
+  }
+
+  res.send(body);
+});
 
 module.exports = postsRouter;
