@@ -1,5 +1,5 @@
 const readline = require(`readline`);
-const {generateData} = require(`./generate`);
+const {generateData} = require(`../test/mock/generate`);
 const fs = require(`fs`);
 
 class Readline {

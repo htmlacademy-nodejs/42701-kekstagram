@@ -1,6 +1,9 @@
 const express = require(`express`);
 const path = require(`path`);
-const postRouter = require(`./routes/posts`);
+
+const postsStore = require(`./posts/store`);
+const imageStore = require(`./images/store`);
+const postRouter = require(`./posts/route`)(postsStore, imageStore);
 
 const app = express();
 const defaultPort = 3000;
