@@ -3,7 +3,6 @@ class ValidateError extends Error {
     super(`Data validation error`);
     this.code = 400;
     this.errors = errors;
-    console.log(errors);
   }
 }
 
