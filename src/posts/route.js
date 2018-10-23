@@ -2,6 +2,7 @@ const multer = require(`multer`);
 const express = require(`express`);
 const {Duplex} = require(`stream`);
 const MongoError = require(`mongodb`).MongoError;
+const logger = require(`../logger`);
 
 // eslint-disable-next-line new-cap
 const router = express.Router();
@@ -12,8 +13,8 @@ const NotFoundError = require(`../error/not-found`);
 const jsonParse = express.json();
 const upload = multer();
 
-const skipDefault = 0;
-const limitDefault = 50;
+const SKIP = 0;
+const LIMIT = 50;
 
 const asyncWrap = (fn) => (req, res, next) => fn(req, res, next).catch(next);
 
@@ -24,13 +25,43 @@ const toStream = (buffer) => {
   return stream;
 };
 
-const toPage = async (cursor, skip = skipDefault, limit = limitDefault) => {
-  return await cursor.skip(skip).limit(limit).toArray();
+const format = (data) => {
+  const {
+    date,
+    description,
+    effect,
+    hashtags,
+    likes,
+    scale,
+  } = data;
+
+  const result = {
+    url: `/api/posts/${date}/image`,
+    description,
+    effect,
+    hashtags,
+    likes,
+    scale,
+    date,
+  };
+
+  return result;
+};
+
+const toPage = async (cursor, skip = SKIP, limit = LIMIT) => {
+  const data = await cursor.skip(skip).limit(limit).toArray();
+  const result = {
+    data: data.map(format),
+    skip,
+    limit,
+    total: await cursor.count(),
+  };
+  return result;
 };
 
 router.get(``, asyncWrap(async (req, res) => {
-  const skip = parseInt(req.query.skip, 10) || skipDefault;
-  const limit = parseInt(req.query.limit, 10) || limitDefault;
+  const skip = parseInt(req.query.skip, 10) || SKIP;
+  const limit = parseInt(req.query.limit, 10) || LIMIT;
 
   const data = await router.postsStore.allPosts;
 
@@ -64,12 +95,11 @@ router.get(`/:date/image`, asyncWrap(async (req, res) => {
     'Content-Length': info.length
   });
 
-  res.on(`error`, console.error);
-  res.on(`end`, res.end);
+  res.on(`error`, (e) => logger.error(`Error with GET /:date/image response`, e));
+  res.on(`end`, () => res.end());
 
-  stream.on(`error`, console.error);
-  stream.on(`end`, res.end);
-
+  stream.on(`error`, (e) => logger.error(`Error with /:date/image stream`, e));
+  stream.on(`end`, () => res.end());
   stream.pipe(res);
 }));
 
@@ -104,7 +134,7 @@ const NOT_FOUND_HANDLER = (req, res) => {
   res.status(404).send(`Page was not found`);
 };
 const ERROR_HANDLER = (err, req, res, _next) => {
-  console.error(err);
+  logger.error(err.message, err);
   if (err instanceof ValidateError) {
     res.status(err.code).json(err.errors);
     return;
