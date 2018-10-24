@@ -1,6 +1,7 @@
 const readline = require(`readline`);
 const {generateData} = require(`../test/mock/generate`);
 const fs = require(`fs`);
+const logger = require(`./logger`);
 
 class Readline {
   constructor(params) {
@@ -17,7 +18,7 @@ class Readline {
         process.exit(0);
       })
       .on(`error`, (err) => {
-        console.log(err);
+        logger.info(`Readline error`, err);
         process.exit(1);
       });
   }

@@ -1,4 +1,5 @@
 const db = require(`../database/db`);
+const logger = require(`../logger`);
 
 const setupPosts = async () => (await db).collection(`posts`);
 
@@ -23,4 +24,4 @@ class PostsStore {
 }
 
 module.exports = new PostsStore(setupPosts()
-  .catch((err) => console.error(`Field to setup collections 'posts'`, err)));
+  .catch((err) => logger.error(`Field to setup collections 'posts'`, err)));

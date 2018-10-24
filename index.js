@@ -1,3 +1,5 @@
+require(`dotenv`).config();
+
 const {exec} = require(`./src/args/index`);
 const {Readline} = require(`./src/readline`);
 
