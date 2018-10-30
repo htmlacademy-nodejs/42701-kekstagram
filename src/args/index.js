@@ -1,13 +1,13 @@
-const commands = {
-  author: require(`./author`),
-  license: require(`./license`),
-  description: require(`./description`),
-  version: require(`./version`),
-  help: require(`./help`),
-  server: require(`./server`),
-};
+const commands = [
+  require(`./help`),
+  require(`./author`),
+  require(`./license`),
+  require(`./description`),
+  require(`./version`),
+  require(`./server`),
+];
 
-const {help} = commands;
+const help = commands[0];
 help.execute = help.execute.bind(help, commands);
 
 const exec = (params) => {
@@ -17,8 +17,9 @@ const exec = (params) => {
     const formatParam = param.slice(2);
     const [paramName, paramValue] = formatParam.split(`=`);
 
-    if (commands.hasOwnProperty(paramName)) {
-      commands[paramName].execute(paramValue);
+    const command = commands.find((item) => item.name === paramName);
+    if (command) {
+      command.execute(paramValue);
     } else {
       console.error(`Неизвестная команда ${param}`);
       isError = true;

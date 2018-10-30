@@ -1,14 +1,14 @@
 const multer = require(`multer`);
 const express = require(`express`);
 const {Duplex} = require(`stream`);
-const MongoError = require(`mongodb`).MongoError;
 const logger = require(`../logger`);
 
 // eslint-disable-next-line new-cap
 const router = express.Router();
 const validate = require(`./validate`);
-const ValidateError = require(`../error/validate`);
 const NotFoundError = require(`../error/not-found`);
+const htmlTemplate = require(`./template`);
+const {ERROR_HANDLER, NOT_FOUND_HANDLER} = require(`../error/handlers`);
 
 const jsonParse = express.json();
 const upload = multer();
@@ -48,7 +48,7 @@ const format = (data) => {
   return result;
 };
 
-const toPage = async (cursor, skip = SKIP, limit = LIMIT) => {
+const toPage = async (cursor, skip = SKIP, limit = LIMIT, html) => {
   const data = await cursor.skip(skip).limit(limit).toArray();
   const result = {
     data: data.map(format),
@@ -56,16 +56,18 @@ const toPage = async (cursor, skip = SKIP, limit = LIMIT) => {
     limit,
     total: await cursor.count(),
   };
-  return result;
+  return html ? htmlTemplate(result) : result;
 };
 
 router.get(``, asyncWrap(async (req, res) => {
   const skip = parseInt(req.query.skip, 10) || SKIP;
   const limit = parseInt(req.query.limit, 10) || LIMIT;
+  const htmlAccept = req.get(`Accept`).includes(`text/html`);
 
   const data = await router.postsStore.allPosts;
 
-  res.send(await toPage(data, skip, limit));
+
+  res.send(await toPage(data, skip, limit, htmlAccept));
 }));
 
 router.get(`/:date`, asyncWrap(async (req, res) => {
@@ -130,25 +132,10 @@ router.post(``, jsonParse, upload.single(`filename`), asyncWrap(async (req, res,
 }));
 
 
-const NOT_FOUND_HANDLER = (req, res) => {
-  res.status(404).send(`Page was not found`);
-};
-const ERROR_HANDLER = (err, req, res, _next) => {
-  logger.error(err.message, err);
-  if (err instanceof ValidateError) {
-    res.status(err.code).json(err.errors);
-    return;
-  } else if (err instanceof MongoError) {
-    res.status(400).json(err.message);
-    return;
-  }
-  res.status(err.code || 500).send(err.message);
-};
-
 router.use(ERROR_HANDLER);
 router.use(NOT_FOUND_HANDLER);
 
-module.exports = function (postsStore, imageStore) {
+module.exports = (postsStore, imageStore) => {
   router.postsStore = postsStore;
   router.imageStore = imageStore;
   return router;
