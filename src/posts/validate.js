@@ -1,25 +1,7 @@
 const ValidateError = require(`../error/validate`);
 const data = require(`./data`);
-
-const HASHTAGS = {
-  length(list) {
-    return list.length > data.hashtagsMaxLength;
-  },
-
-  begins(list) {
-    return list.some((hash) => !hash.startsWith(`#`));
-  },
-
-  lengthWord(list) {
-    return list.some((hash) => hash.length < data.hashtagsMinWord + 1 || hash.length > data.hashtagsMaxWord);
-  },
-
-  unique(list) {
-    return list
-      .map((hash) => hash.toLowerCase())
-      .some((hash) => list.indexOf(hash) !== list.lastIndexOf(hash));
-  }
-};
+const validateHashtags = require(`./validateHashtags`);
+const requaries = [`filename`, `scale`, `effect`];
 
 const validate = (body) => {
   const errors = [];
@@ -37,28 +19,26 @@ const validate = (body) => {
     errorMessage: message
   });
 
-  if (filename) {
-    if (!data.fileType.test(filename.mimetype)) {
-      setError(`filename`, `Field 'filename' must be a image type!`);
+  requaries.forEach((field) => {
+    if (!(field in body)) {
+      setError(field, `Field '${field}' is required!`);
     }
-  } else {
-    setError(`filename`, `Field 'filename' is required!`);
+  });
+
+  if (errors.length) {
+    throw new ValidateError(errors);
   }
 
-  if (scale !== undefined) {
-    if (scale < data.scaleMin || scale > data.scaleMax) {
-      setError(`scale`, `Field 'scale' must be in range from ${data.scaleMin} to ${data.scaleMax}!`);
-    }
-  } else {
-    setError(`scale`, `Field 'scale' is required!`);
+  if (!data.fileType.test(filename.mimetype)) {
+    setError(`filename`, `Field 'filename' must be a image type!`);
   }
 
-  if (effect) {
-    if (!data.effects.includes(effect)) {
-      setError(`effect`, `Field 'effect' must be one of the following: ${data.effects.join(`, `)}!`);
-    }
-  } else {
-    setError(`effect`, `Field 'effect' is required!`);
+  if (scale < data.scaleMin || scale > data.scaleMax) {
+    setError(`scale`, `Field 'scale' must be in range from ${data.scaleMin} to ${data.scaleMax}!`);
+  }
+
+  if (!data.effects.includes(effect)) {
+    setError(`effect`, `Field 'effect' must be one of the following: ${data.effects.join(`, `)}!`);
   }
 
   if (description && description > data.descriptionMax) {
@@ -67,22 +47,11 @@ const validate = (body) => {
 
   if (hashtags) {
     const list = hashtags.trim().split(/\s+/);
-
-    if (HASHTAGS.length(list)) {
-      setError(`hashtags`, `Field 'hashtags' must be less then ${data.hashtagsMaxLength} hashtags!`);
-    }
-
-    if (HASHTAGS.begins(list)) {
-      setError(`hashtags`, `All hashtags must begins with '#' symbol!`);
-    }
-
-    if (HASHTAGS.lengthWord(list)) {
-      setError(`hashtags`, `All hashtags length must be in range from ${data.hashtagsMinWord} to ${data.hashtagsMaxWord}!`);
-    }
-
-    if (HASHTAGS.unique(list)) {
-      setError(`hashtags`, `All hashtags must be unique!`);
-    }
+    validateHashtags.forEach((item) => {
+      if (item.condition(list)) {
+        setError(`hashtags`, item.error);
+      }
+    });
   }
 
   if (errors.length) {

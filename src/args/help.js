@@ -1,22 +1,12 @@
-const colors = require(`colors/safe`);
+const {gray, green} = require(`colors/safe`);
 
-const getCommandsList = (list) => {
-  let result = [``];
-
-  for (let item in list) {
-    if (list.hasOwnProperty(item)) {
-      result.push(` --${colors.gray(list[item].name)} — ${colors.green(list[item].description)}`
-      );
-    }
-  }
-
-  return result.join(`\n`);
-};
+const getPhrase = ({name, description}) => ` --${gray(name)} — ${green(description)}`;
+const getCommandsList = (list) => list.map(getPhrase).join(`\n`);
 
 module.exports = {
   name: `help`,
   description: `Печатает доступные команды`,
   execute(commands, type = `log`) {
-    console[type](`Доступные команды: ${getCommandsList(commands)}`);
+    console[type](`Доступные команды: \n${getCommandsList(commands)}`);
   }
 };
